@@ -2,7 +2,7 @@ import Office3D from '@/components/Office3D/Office3D';
 
 export const metadata = {
   title: 'The Office 3D | Mission Control',
-  description: 'Visualiza tus agentes trabajando en tiempo real en un entorno 3D',
+  description: 'Watch your agents working in real-time in a 3D environment',
 };
 
 export default function OfficePage() {

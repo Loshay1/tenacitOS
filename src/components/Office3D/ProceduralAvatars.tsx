@@ -62,7 +62,7 @@ function CrabAvatar({ color, position }: { color: string; position: [number, num
   );
 }
 
-// Robot 3D (Infra)
+// 3D Robot (Infra)
 function RobotAvatar({ color, position }: { color: string; position: [number, number, number] }) {
   return (
     <group position={position}>

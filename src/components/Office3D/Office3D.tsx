@@ -2,7 +2,7 @@
 
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Sky, Environment } from '@react-three/drei';
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { Vector3 } from 'three';
 import { AGENTS } from './agentsConfig';
 import type { AgentState } from './agentsConfig';
@@ -25,15 +25,42 @@ export default function Office3D() {
   const [controlMode, setControlMode] = useState<'orbit' | 'fps'>('orbit');
   const [avatarPositions, setAvatarPositions] = useState<Map<string, any>>(new Map());
   
-  // Mock data - TODO: Replace with real API data
-  const [agentStates] = useState<Record<string, AgentState>>({
-    main: { id: 'main', status: 'working', currentTask: 'Procesando emails', model: 'opus', tokensPerHour: 15000, tasksInQueue: 3, uptime: 12 },
-    academic: { id: 'academic', status: 'idle', model: 'sonnet', tokensPerHour: 0, tasksInQueue: 0, uptime: 8 },
-    studio: { id: 'studio', status: 'thinking', currentTask: 'Generando guión YouTube', model: 'opus', tokensPerHour: 8000, tasksInQueue: 1, uptime: 5 },
-    linkedin: { id: 'linkedin', status: 'working', currentTask: 'Redactando post', model: 'sonnet', tokensPerHour: 5000, tasksInQueue: 2, uptime: 10 },
-    social: { id: 'social', status: 'idle', model: 'sonnet', tokensPerHour: 0, tasksInQueue: 0, uptime: 7 },
-    infra: { id: 'infra', status: 'error', currentTask: 'Failed deployment', model: 'haiku', tokensPerHour: 1000, tasksInQueue: 0, uptime: 15 },
-  });
+  // Fetch agent states from API
+  const [agentStates, setAgentStates] = useState<Record<string, AgentState>>({});
+
+  useEffect(() => {
+    const fetchAgents = async () => {
+      try {
+        const res = await fetch('/api/office');
+        if (res.ok) {
+          const data = await res.json();
+          const states: Record<string, AgentState> = {};
+          if (data.agents) {
+            for (const agent of data.agents) {
+              states[agent.id] = {
+                id: agent.id,
+                status: agent.status === 'active' ? 'working' : agent.status === 'idle' ? 'idle' : 'thinking',
+                currentTask: agent.currentTask || agent.lastActivity || 'Idle',
+              };
+            }
+          }
+          // Ensure main agent always exists
+          if (!states['main']) {
+            states['main'] = { id: 'main', status: 'working', currentTask: 'Processing tasks' };
+          }
+          setAgentStates(states);
+        }
+      } catch {
+        // Fallback to basic state
+        setAgentStates({
+          main: { id: 'main', status: 'working', currentTask: 'Processing tasks' },
+        });
+      }
+    };
+    fetchAgents();
+    const interval = setInterval(fetchAgents, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleDeskClick = (agentId: string) => {
     setSelectedAgent(agentId);
@@ -65,18 +92,18 @@ export default function Office3D() {
 
   // Definir obstáculos (muebles)
   const obstacles = [
-    // Escritorios (6)
+    // Desks (6)
     ...AGENTS.map(agent => ({
       position: new Vector3(agent.position[0], 0, agent.position[2]),
       radius: 1.5
     })),
-    // Archivador
+    // File cabinet
     { position: new Vector3(-8, 0, -5), radius: 0.8 },
-    // Pizarra
+    // Whiteboard
     { position: new Vector3(0, 0, -8), radius: 1.5 },
     // Máquina de café
     { position: new Vector3(8, 0, -5), radius: 0.6 },
-    // Plantas
+    // Plants
     { position: new Vector3(-7, 0, 6), radius: 0.5 },
     { position: new Vector3(7, 0, 6), radius: 0.5 },
     { position: new Vector3(-9, 0, 0), radius: 0.4 },
@@ -100,17 +127,17 @@ export default function Office3D() {
           {/* Iluminación */}
           <Lights />
 
-          {/* Cielo y ambiente */}
+          {/* Sky and environment */}
           <Sky sunPosition={[100, 20, 100]} />
           <Environment preset="sunset" />
 
-          {/* Suelo */}
+          {/* Floor */}
           <Floor />
 
-          {/* Paredes */}
+          {/* Walls */}
           <Walls />
 
-          {/* Escritorios de agentes (sin avatares) */}
+          {/* Agent desks (without avatars) */}
           {AGENTS.map((agent) => (
             <AgentDesk
               key={agent.id}

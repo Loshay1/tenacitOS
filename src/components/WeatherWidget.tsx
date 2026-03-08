@@ -85,7 +85,7 @@ export function WeatherWidget() {
         <div style={{ textAlign: "right" }}>
           <div style={{ fontSize: "2.5rem", lineHeight: 1 }}>{weather.emoji}</div>
           <div style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--text-primary)", lineHeight: 1.1 }}>
-            {weather.temp}°C
+            {weather.temp}°F
           </div>
           <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.125rem" }}>
             {weather.condition}
@@ -97,7 +97,7 @@ export function WeatherWidget() {
       <div style={{ display: "flex", gap: "1rem", marginBottom: "0.875rem", paddingTop: "0.75rem", borderTop: "1px solid var(--border)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
           <Thermometer className="w-3.5 h-3.5" style={{ color: "var(--accent)" }} />
-          Feels {weather.feels_like}°C
+          Feels {weather.feels_like}°F
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
           <Droplets className="w-3.5 h-3.5" style={{ color: "#60a5fa" }} />
@@ -105,7 +105,7 @@ export function WeatherWidget() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
           <Wind className="w-3.5 h-3.5" style={{ color: "#94a3b8" }} />
-          {weather.wind} km/h
+          {weather.wind} mph
         </div>
       </div>
 

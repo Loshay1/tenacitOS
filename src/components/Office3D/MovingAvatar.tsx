@@ -35,7 +35,7 @@ export default function MovingAvatar({
 }: MovingAvatarProps) {
   const groupRef = useRef<Group>(null);
   
-  // Posición inicial completamente aleatoria SIN colisiones
+  // Posición inicial completamente aleatoria SIN collisiones
   const [initialPos] = useState(() => {
     let pos: Vector3;
     let attempts = 0;
@@ -67,12 +67,12 @@ export default function MovingAvatar({
   const [targetPos, setTargetPos] = useState(initialPos);
   const currentPos = useRef(initialPos.clone());
   
-  // Notificar posición inicial
+  // Notify posición inicial
   useEffect(() => {
     onPositionUpdate(agent.id, initialPos.clone());
   }, []);
 
-  // Verificar si una posición está libre (sin colisiones)
+  // Verificar si una posición está libre (sin collisiones)
   const isPositionFree = (pos: Vector3): boolean => {
     const minDistanceToObstacle = 1.5; // distancia mínima a muebles
     const minDistanceToAvatar = 1.2; // distancia mínima entre avatares
@@ -97,13 +97,13 @@ export default function MovingAvatar({
     return true;
   };
 
-  // Cambiar objetivo cada 5-10 segundos (depende del estado)
+  // Cambiar target cada 5-10 segundos (depende del estado)
   useEffect(() => {
     const getNewTarget = () => {
       let attempts = 0;
       let newPos: Vector3;
 
-      // Intentar encontrar una posición libre (máximo 20 intentos)
+      // Try to find una posición libre (máximo 20 intentos)
       do {
         const x = Math.random() * (officeBounds.maxX - officeBounds.minX) + officeBounds.minX;
         const z = Math.random() * (officeBounds.maxZ - officeBounds.minZ) + officeBounds.minZ;
@@ -135,7 +135,7 @@ export default function MovingAvatar({
       }
     };
 
-    // Primer objetivo después de montar
+    // Primer target después de montar
     const timeout = setTimeout(getNewTarget, 1000);
     const interval = setInterval(getNewTarget, getInterval());
     
@@ -160,7 +160,7 @@ export default function MovingAvatar({
       currentPos.current.copy(newPos);
       groupRef.current.position.copy(currentPos.current);
 
-      // Notificar la nueva posición
+      // Notify la nueva posición
       onPositionUpdate(agent.id, currentPos.current.clone());
 
       // Rotate toward movement direction
@@ -170,7 +170,7 @@ export default function MovingAvatar({
         groupRef.current.rotation.y = angle;
       }
     } else {
-      // Si hay colisión, buscar nuevo objetivo
+      // Si hay colisión, buscar nuevo target
       const x = Math.random() * (officeBounds.maxX - officeBounds.minX) + officeBounds.minX;
       const z = Math.random() * (officeBounds.maxZ - officeBounds.minZ) + officeBounds.minZ;
       const newTarget = new Vector3(x, 0.6, z);

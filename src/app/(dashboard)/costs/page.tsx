@@ -74,8 +74,8 @@ export default function CostsPage() {
 
   const budgetPercent = (costData.thisMonth / costData.budget) * 100;
   const budgetColor = budgetPercent < 60 ? "var(--success)" : budgetPercent < 85 ? "var(--warning)" : "var(--error)";
-  const todayChange = ((costData.today - costData.yesterday) / costData.yesterday) * 100;
-  const monthChange = ((costData.thisMonth - costData.lastMonth) / costData.lastMonth) * 100;
+  const todayChange = costData.yesterday ? ((costData.today - costData.yesterday) / costData.yesterday) * 100 : 0;
+  const monthChange = costData.lastMonth ? ((costData.thisMonth - costData.lastMonth) / costData.lastMonth) * 100 : 0;
 
   return (
     <div className="space-y-6">
@@ -361,7 +361,7 @@ export default function CostsPage() {
             </thead>
             <tbody>
               {costData.byAgent.map((agent) => {
-                const percent = (agent.cost / costData.thisMonth) * 100;
+                const percent = costData.thisMonth ? (agent.cost / costData.thisMonth) * 100 : 0;
                 return (
                   <tr key={agent.agent} style={{ borderBottom: "1px solid var(--border)" }}>
                     <td className="py-3 px-4">

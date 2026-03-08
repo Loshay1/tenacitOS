@@ -8,8 +8,19 @@ const PUBLIC_ROUTES = new Set(["/login"]);
 const PUBLIC_API_PREFIXES = ["/api/auth/", "/api/health"];
 
 function isAuthenticated(request: NextRequest): boolean {
+  // Check cookie-based auth
   const authCookie = request.cookies.get("mc_auth");
-  return !!(authCookie && authCookie.value === process.env.AUTH_SECRET);
+  if (authCookie && authCookie.value === process.env.AUTH_SECRET) {
+    return true;
+  }
+
+  // Check API key header (for internal scripts/agents)
+  const apiKey = request.headers.get("X-API-Key");
+  if (apiKey && apiKey === process.env.AUTH_SECRET) {
+    return true;
+  }
+
+  return false;
 }
 
 export function middleware(request: NextRequest) {

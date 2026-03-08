@@ -55,7 +55,7 @@ export default function VoxelAvatar({
     }
   });
 
-  // Colores basados en el agente
+  // Colors based on the agent
   const skinColor = '#ffa07a'; // peach
   const shirtColor = agent.color;
   const pantsColor = '#4a5568';
