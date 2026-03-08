@@ -76,23 +76,70 @@ export async function GET() {
         .replace('/home/node/.openclaw', openclawDir)
         .replace('/home/clawdbot/.openclaw', openclawDir);
 
-      // Check if agent has recent activity
+      // Check if agent has recent activity (memory files + session files)
       const memoryPath = join(hostWorkspace, "memory");
+      const sessionsDir = join(openclawDir, "agents", agent.id, "sessions");
       let lastActivity = undefined;
       let status: "online" | "offline" = "offline";
+      let latestMtime = 0;
 
+      // Check memory file for today
       try {
         const today = new Date().toISOString().split("T")[0];
         const memoryFile = join(memoryPath, `${today}.md`);
         const stat = require("fs").statSync(memoryFile);
-        lastActivity = stat.mtime.toISOString();
-        // Consider online if activity within last 5 minutes
-        status =
-          Date.now() - stat.mtime.getTime() < 5 * 60 * 1000
-            ? "online"
-            : "offline";
+        latestMtime = stat.mtime.getTime();
       } catch (e) {
-        // No recent activity
+        // No memory file for today
+      }
+
+      // Check sessions.json for recent activity
+      try {
+        const sessionsFile = join(sessionsDir, "sessions.json");
+        const sessionsStat = require("fs").statSync(sessionsFile);
+        if (sessionsStat.mtime.getTime() > latestMtime) {
+          latestMtime = sessionsStat.mtime.getTime();
+        }
+        // Also check updatedAt timestamps inside sessions.json
+        try {
+          const sessionsData = JSON.parse(readFileSync(sessionsFile, "utf-8"));
+          for (const key of Object.keys(sessionsData)) {
+            const updatedAt = sessionsData[key]?.updatedAt;
+            if (typeof updatedAt === "number" && updatedAt > latestMtime) {
+              latestMtime = updatedAt;
+            }
+          }
+        } catch (e) {
+          // Could not parse sessions.json
+        }
+      } catch (e) {
+        // No sessions.json
+      }
+
+      // Check individual session JSONL files (top 5 by mtime)
+      try {
+        const fs = require("fs");
+        const sessionFiles = fs.readdirSync(sessionsDir)
+          .filter((f: string) => f.endsWith(".jsonl"))
+          .map((f: string) => {
+            const fullPath = join(sessionsDir, f);
+            return { path: fullPath, mtime: fs.statSync(fullPath).mtime.getTime() };
+          })
+          .sort((a: any, b: any) => b.mtime - a.mtime)
+          .slice(0, 5);
+        for (const sf of sessionFiles) {
+          if (sf.mtime > latestMtime) {
+            latestMtime = sf.mtime;
+          }
+        }
+      } catch (e) {
+        // Could not read session files
+      }
+
+      if (latestMtime > 0) {
+        lastActivity = new Date(latestMtime).toISOString();
+        // Consider online if activity within last 15 minutes
+        status = Date.now() - latestMtime < 15 * 60 * 1000 ? "online" : "offline";
       }
 
       // Get details of allowed subagents
