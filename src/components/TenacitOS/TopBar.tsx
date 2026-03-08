@@ -57,7 +57,7 @@ export function TopBar() {
               letterSpacing: "-0.5px",
             }}
           >
-            TenacitOS
+            {process.env.NEXT_PUBLIC_APP_TITLE || "Mission Control"}
           </h1>
           {/* Version Badge */}
           <div
@@ -139,7 +139,7 @@ export function TopBar() {
                   color: "var(--text-primary)",
                 }}
               >
-                C
+                {(process.env.NEXT_PUBLIC_OWNER_USERNAME || "Larab")[0].toUpperCase()}
               </span>
             </div>
             {/* Name */}
@@ -151,7 +151,7 @@ export function TopBar() {
                 color: "var(--text-secondary)",
               }}
             >
-              Carlos
+              {process.env.NEXT_PUBLIC_OWNER_USERNAME || "Larab"}
             </span>
           </div>
         </div>

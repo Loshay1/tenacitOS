@@ -5,7 +5,7 @@
 import { NextRequest } from 'next/server';
 import { spawn } from 'child_process';
 
-const ALLOWED_SERVICES = ['mission-control', 'classvault', 'content-vault', 'postiz-simple', 'brain', 'openclaw-gateway'];
+const ALLOWED_SERVICES = ['bashir-mission-control', 'bashir-memory-api', 'openclaw-gateway', 'chromadb', 'sandbox-browser'];
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
       let cmd: string[];
       if (backend === 'pm2') {
         cmd = ['pm2', 'logs', service, '--lines', '50', '--nocolor'];
+      } else if (backend === 'docker') {
+        cmd = ['docker', 'logs', '--tail', '50', '-f', service];
       } else {
         cmd = ['journalctl', '-u', service, '-n', '50', '--no-pager', '-f'];
       }

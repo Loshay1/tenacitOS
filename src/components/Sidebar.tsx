@@ -22,7 +22,6 @@ import {
   Users,
   Gamepad2,
   GitBranch,
-  Workflow,
   Zap,
   Server,
   GitFork,
@@ -40,7 +39,6 @@ const navItems = [
   { href: "/logs", label: "Live Logs", icon: Terminal },
   { href: "/terminal", label: "Terminal", icon: SquareTerminal },
   { href: "/git", label: "Git", icon: GitFork },
-  { href: "/workflows", label: "Workflows", icon: Workflow },
   { href: "/activity", label: "Activity", icon: Activity },
   { href: "/memory", label: "Memory", icon: Brain },
   { href: "/files", label: "Files", icon: FolderOpen },
@@ -305,7 +303,7 @@ export function Sidebar() {
             }}
           >
             <LogOut className="w-4 h-4" />
-            <span className="text-sm">Cerrar sesión</span>
+            <span className="text-sm">Sign out</span>
           </button>
         </div>
       </aside>

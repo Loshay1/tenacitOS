@@ -145,7 +145,7 @@ export default function MovingAvatar({
     };
   }, [state.status]);
 
-  // Mover suavemente hacia el objetivo
+  // Smoothly move toward target
   useFrame((frameState, delta) => {
     if (!groupRef.current) return;
 
@@ -163,7 +163,7 @@ export default function MovingAvatar({
       // Notificar la nueva posición
       onPositionUpdate(agent.id, currentPos.current.clone());
 
-      // Rotar hacia la dirección del movimiento
+      // Rotate toward movement direction
       const direction = new Vector3().subVectors(targetPos, currentPos.current);
       if (direction.length() > 0.1) {
         const angle = Math.atan2(direction.x, direction.z);

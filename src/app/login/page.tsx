@@ -30,10 +30,10 @@ function LoginForm() {
         router.push(from);
         router.refresh();
       } else {
-        setError("Contraseña incorrecta");
+        setError("Incorrect password");
       }
     } catch {
-      setError("Error de conexión");
+      setError("Connection error");
     }
 
     setLoading(false);
@@ -70,7 +70,7 @@ function LoginForm() {
           className="text-sm"
           style={{ color: 'var(--text-secondary)' }}
         >
-          Introduce la contraseña para acceder
+          Enter your password to access
         </p>
       </div>
 
@@ -91,7 +91,7 @@ function LoginForm() {
               border: '1px solid var(--border)',
               color: 'var(--text-primary)',
             }}
-            placeholder="Contraseña"
+            placeholder="Password"
             required
           />
         </div>
@@ -118,7 +118,7 @@ function LoginForm() {
             color: 'white',
           }}
         >
-          {loading ? "Verificando..." : "Entrar"}
+          {loading ? "Verifying..." : "Sign In"}
         </button>
       </form>
 
@@ -127,7 +127,7 @@ function LoginForm() {
         className="text-center text-xs mt-6"
         style={{ color: 'var(--text-muted)' }}
       >
-        Tenacitas Agent Dashboard
+        {process.env.NEXT_PUBLIC_APP_TITLE || 'Bashir Mission Control'}
       </p>
     </div>
   );

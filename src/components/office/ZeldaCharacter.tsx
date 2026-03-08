@@ -19,7 +19,7 @@ interface ZeldaCharacterProps {
 const AgentSprites: Record<string, React.ReactElement> = {
   main: (
     <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      {/* Tenacitas - Rojo/naranja con pinzas de langosta */}
+      {/* Main agent */}
       {/* Body */}
       <rect x="20" y="26" width="24" height="24" fill="#ff6b35" />
       <rect x="22" y="28" width="20" height="20" fill="#ff8855" />
@@ -41,7 +41,7 @@ const AgentSprites: Record<string, React.ReactElement> = {
   ),
   academic: (
     <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      {/* Profe - Verde con birrete */}
+      {/* Academic - green with grad cap */}
       {/* Body */}
       <rect x="20" y="26" width="24" height="24" fill="#4ade80" />
       <rect x="22" y="28" width="20" height="20" fill="#6ef09a" />
@@ -61,7 +61,7 @@ const AgentSprites: Record<string, React.ReactElement> = {
   ),
   studio: (
     <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      {/* Studio - Púrpura con auriculares */}
+      {/* Studio - purple with headphones */}
       {/* Body */}
       <rect x="20" y="26" width="24" height="24" fill="#a855f7" />
       <rect x="22" y="28" width="20" height="20" fill="#c084fc" />
@@ -83,7 +83,7 @@ const AgentSprites: Record<string, React.ReactElement> = {
   ),
   linkedin: (
     <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      {/* LinkedIn Pro - Azul con corbata/traje */}
+      {/* LinkedIn Pro - blue with suit/tie */}
       {/* Body (suit) */}
       <rect x="20" y="26" width="24" height="24" fill="#0a66c2" />
       <rect x="22" y="28" width="20" height="20" fill="#2563eb" />
@@ -104,7 +104,7 @@ const AgentSprites: Record<string, React.ReactElement> = {
   ),
   social: (
     <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      {/* Social - Rosa/magenta con gafas de sol */}
+      {/* Social - pink/magenta with sunglasses */}
       {/* Body */}
       <rect x="20" y="26" width="24" height="24" fill="#ec4899" />
       <rect x="22" y="28" width="20" height="20" fill="#f472b6" />
@@ -123,7 +123,7 @@ const AgentSprites: Record<string, React.ReactElement> = {
   ),
   infra: (
     <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      {/* Infra - Gris/naranja con casco */}
+      {/* Infra - gray/orange with helmet */}
       {/* Body */}
       <rect x="20" y="26" width="24" height="24" fill="#6b7280" />
       <rect x="22" y="28" width="20" height="20" fill="#9ca3af" />

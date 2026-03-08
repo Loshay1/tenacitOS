@@ -118,13 +118,47 @@ export async function GET(request: NextRequest) {
 
 async function listSessions(): Promise<NextResponse> {
   try {
-    const output = execSync('openclaw sessions list --json 2>/dev/null', {
-      timeout: 10000,
-      encoding: 'utf-8',
-    });
+    let rawSessions: RawSession[] = [];
 
-    const data = JSON.parse(output);
-    const rawSessions: RawSession[] = data.sessions || [];
+    // Try CLI first
+    try {
+      const output = execSync('openclaw sessions list --json 2>/dev/null', {
+        timeout: 10000,
+        encoding: 'utf-8',
+      });
+      const data = JSON.parse(output);
+      rawSessions = data.sessions || [];
+    } catch {
+      // Fallback: scan session JSONL files directly
+      const { readdirSync, statSync } = require('fs');
+      const sessionsDir = join(OPENCLAW_DIR, 'agents', 'main', 'sessions');
+      try {
+        const files = readdirSync(sessionsDir).filter((f: string) => f.endsWith('.jsonl'));
+        for (const file of files) {
+          const sessionId = file.replace('.jsonl', '');
+          const filePath = join(sessionsDir, file);
+          try {
+            const stat = statSync(filePath);
+            const firstLine = readFileSync(filePath, 'utf-8').split('\n')[0];
+            const meta = JSON.parse(firstLine);
+            rawSessions.push({
+              key: `agent:main:${meta.type === 'cron' ? 'cron:' + (meta.cronJobId || 'unknown') : meta.type || 'direct'}`,
+              kind: meta.type || 'direct',
+              updatedAt: stat.mtimeMs,
+              ageMs: Date.now() - stat.mtimeMs,
+              sessionId,
+              model: meta.modelId || meta.model || 'unknown',
+              modelProvider: meta.provider || 'anthropic',
+              inputTokens: 0,
+              outputTokens: 0,
+              totalTokens: 0,
+            });
+          } catch { /* skip unreadable files */ }
+        }
+        rawSessions.sort((a: RawSession, b: RawSession) => b.updatedAt - a.updatedAt);
+        rawSessions = rawSessions.slice(0, 50);
+      } catch { /* sessions dir not readable */ }
+    }
 
     const sessions: ParsedSession[] = rawSessions
       .reduce<ParsedSession[]>((acc, raw) => {

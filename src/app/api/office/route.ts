@@ -5,48 +5,54 @@ import { join } from "path";
 export const dynamic = "force-dynamic";
 
 const AGENT_CONFIG = {
-  main: { emoji: "🦞", color: "#ff6b35", name: "Tenacitas", role: "Boss" },
-  academic: {
-    emoji: "🎓",
-    color: "#4ade80",
-    name: "Profe",
-    role: "Teacher",
+  main: { emoji: "🧠", color: "#3b82f6", name: "Bashir", role: "Executive Assistant" },
+  coordinator: {
+    emoji: "🎯",
+    color: "#f59e0b",
+    name: "Coordinator",
+    role: "Task Decomposition",
   },
-  infra: {
-    emoji: "🔧",
+  orchestrator: {
+    emoji: "🎼",
+    color: "#8b5cf6",
+    name: "Orchestrator",
+    role: "Code Router",
+  },
+  research: {
+    emoji: "🔍",
+    color: "#10b981",
+    name: "Research",
+    role: "Intelligence",
+  },
+  scribe: {
+    emoji: "✍️",
+    color: "#6366f1",
+    name: "Scribe",
+    role: "Writer",
+  },
+  counsel: {
+    emoji: "⚖️",
+    color: "#ef4444",
+    name: "Counsel",
+    role: "Legal Research",
+  },
+  ops: {
+    emoji: "🚀",
     color: "#f97316",
-    name: "Infra",
-    role: "DevOps",
+    name: "Ops",
+    role: "Publishing & Browser",
   },
-  studio: {
-    emoji: "🎬",
-    color: "#a855f7",
-    name: "Studio",
-    role: "Video Editor",
+  inspector: {
+    emoji: "🔎",
+    color: "#64748b",
+    name: "Inspector",
+    role: "QA Auditor",
   },
-  social: {
-    emoji: "📱",
-    color: "#ec4899",
-    name: "Social",
-    role: "Social Media",
-  },
-  linkedin: {
-    emoji: "💼",
-    color: "#0077b5",
-    name: "LinkedIn Pro",
-    role: "Professional",
-  },
-  devclaw: {
-    emoji: "👨‍💻",
-    color: "#8b5cf6",
-    name: "DevClaw",
-    role: "Developer",
-  },
-  freelance: {
-    emoji: "👨‍💻",
-    color: "#8b5cf6",
-    name: "DevClaw",
-    role: "Developer",
+  homelab: {
+    emoji: "🏠",
+    color: "#22c55e",
+    name: "HomeLab",
+    role: "Home Automation",
   },
 };
 
@@ -189,7 +195,15 @@ export async function GET() {
     // Try gateway first, fallback to file-based
     const gatewayStatus = await getAgentStatusFromGateway();
 
+    // Translate container paths to host paths
+    const openclawDir = process.env.OPENCLAW_DIR || '/root/.openclaw';
+    const containerOpenclawDir = '/home/node/.openclaw';
+
     const agents = config.agents.list.map((agent: any) => {
+      // Replace container path with host path
+      if (agent.workspace && agent.workspace.startsWith(containerOpenclawDir)) {
+        agent = { ...agent, workspace: agent.workspace.replace(containerOpenclawDir, openclawDir) };
+      }
       const agentInfo = AGENT_CONFIG[agent.id as keyof typeof AGENT_CONFIG] || {
         emoji: "🤖",
         color: "#666",
@@ -203,11 +217,8 @@ export async function GET() {
         status = getAgentStatusFromFiles(agent.id, agent.workspace);
       }
 
-      // Map freelance -> devclaw for canvas compatibility
-      const canvasId = agent.id === "freelance" ? "devclaw" : agent.id;
-
       return {
-        id: canvasId,
+        id: agent.id,
         name: agentInfo.name,
         emoji: agentInfo.emoji,
         color: agentInfo.color,

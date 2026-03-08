@@ -10,12 +10,11 @@ interface LogLine {
 }
 
 const SERVICES = [
-  { name: "mission-control", backend: "systemd", label: "Mission Control" },
-  { name: "classvault", backend: "pm2", label: "ClassVault" },
-  { name: "content-vault", backend: "pm2", label: "Content Vault" },
-  { name: "brain", backend: "pm2", label: "Brain" },
-  { name: "postiz-simple", backend: "pm2", label: "Postiz" },
-  { name: "openclaw-gateway", backend: "systemd", label: "Gateway" },
+  { name: "bashir-mission-control", backend: "systemd", label: "Mission Control" },
+  { name: "bashir-memory-api", backend: "systemd", label: "Memory API" },
+  { name: "openclaw-gateway", backend: "docker", label: "Gateway" },
+  { name: "chromadb", backend: "docker", label: "ChromaDB" },
+  { name: "sandbox-browser", backend: "docker", label: "Sandbox Browser" },
 ];
 
 function getLineColor(line: string): string {

@@ -5,7 +5,7 @@ import os from "os";
 
 const execAsync = promisify(exec);
 
-const SYSTEMD_SERVICES = ["mission-control", "content-vault", "classvault", "creatoros"];
+const SYSTEMD_SERVICES = ["bashir-mission-control", "bashir-memory-api", "docker"];
 
 export async function GET() {
   try {

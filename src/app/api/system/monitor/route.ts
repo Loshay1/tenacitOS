@@ -6,12 +6,10 @@ import os from "os";
 const execAsync = promisify(exec);
 
 // Services monitored per backend
-const SYSTEMD_SERVICES = ["mission-control"];
-const PM2_SERVICES = ["classvault", "content-vault", "postiz-simple", "brain"];
+const SYSTEMD_SERVICES = ["bashir-mission-control", "bashir-memory-api", "docker"];
+const PM2_SERVICES: string[] = []; // No PM2 services
 // creatoros not deployed yet — shown as "not_deployed"
-const PLACEHOLDER_SERVICES = [
-  { name: "creatoros", description: "Creatoros Platform", status: "not_deployed" },
-];
+const PLACEHOLDER_SERVICES: Array<{name: string; description: string; status: string}> = [];
 
 interface ServiceEntry {
   name: string;
@@ -60,12 +58,10 @@ function normalizePm2Status(status: string): string {
 
 // Friendly display names for PM2 process names
 const SERVICE_DESCRIPTIONS: Record<string, string> = {
-  "mission-control": "Mission Control – Tenacitas Dashboard",
-  classvault: "ClassVault – LMS Platform",
-  "content-vault": "Content Vault – Draft Management Webapp",
-  "postiz-simple": "Postiz – Social Media Scheduler",
-  brain: "Brain – Internal Tools",
-  creatoros: "Creatoros Platform",
+  "bashir-mission-control": "Mission Control – Bashir Dashboard",
+  "bashir-memory-api": "Semantic Memory API – ChromaDB Interface",
+  docker: "Docker Engine – Container Runtime",
+  
 };
 
 export async function GET() {
@@ -218,14 +214,35 @@ export async function GET() {
       }
     }
 
-    // 3. Placeholder services (not yet deployed)
+
+    // 3. Docker containers
+    try {
+      const { stdout: dockerOut } = await execAsync('docker ps --format "{{.Names}}\t{{.Status}}\t{{.Image}}" 2>/dev/null');
+      const dockerLines = dockerOut.trim().split("\n").filter(Boolean);
+      for (const line of dockerLines) {
+        const [containerName, containerStatus, containerImage] = line.split("\t");
+        if (containerName) {
+          const isUp = containerStatus?.toLowerCase().includes("up") ?? false;
+          services.push({
+            name: containerName,
+            status: isUp ? "active" : "inactive",
+            description: `Docker: ${containerImage || containerName}`,
+            backend: "docker",
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Failed to query Docker:", err);
+    }
+
+    // 4. Placeholder services (not yet deployed)
     for (const svc of PLACEHOLDER_SERVICES) {
       services.push({ ...svc, backend: "none" });
     }
 
     // ── Tailscale VPN ─────────────────────────────────────────────────────────
     let tailscaleActive = false;
-    let tailscaleIp = "100.122.105.85";
+    let tailscaleIp = "100.97.137.86";
     const tailscaleDevices: TailscaleDevice[] = [];
     try {
       const { stdout: tsStatus } = await execAsync("tailscale status 2>/dev/null || true");
@@ -309,9 +326,9 @@ export async function GET() {
           tailscaleDevices.length > 0
             ? tailscaleDevices
             : [
-                { ip: "100.122.105.85", hostname: "srv1328267", os: "linux", online: true },
-                { ip: "100.106.86.52", hostname: "iphone182", os: "iOS", online: true },
-                { ip: "100.72.14.113", hostname: "macbook-pro-de-carlos", os: "macOS", online: true },
+                { ip: "100.97.137.86", hostname: "mohsin-pc", os: "linux (WSL2)", online: true },
+                { ip: "100.111.86.126", hostname: "mlgqnap", os: "linux (QNAP)", online: true },
+                { ip: "100.87.75.15", hostname: "larab-macbook", os: "macOS", online: true },
               ],
       },
       firewall: {

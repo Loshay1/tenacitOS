@@ -17,12 +17,33 @@ function getGatewayConfig() {
 // GET: List all cron jobs from the OpenClaw gateway
 export async function GET() {
   try {
-    const output = execSync("openclaw cron list --json --all 2>/dev/null", {
-      timeout: 10000,
-      encoding: "utf-8",
-    });
+    // Try CLI first, fallback to reading jobs.json directly
+    let data: { jobs?: Record<string, unknown>[] } | null = null;
 
-    const data = JSON.parse(output);
+    try {
+      const output = execSync("openclaw cron list --json --all 2>/dev/null", {
+        timeout: 10000,
+        encoding: "utf-8",
+      });
+      data = JSON.parse(output);
+    } catch {
+      // CLI not available — read jobs.json directly
+      const fs = require("fs");
+      const path = require("path");
+      const openclawDir = process.env.OPENCLAW_DIR || "/root/.openclaw";
+      const jobsPath = path.join(openclawDir, "cron", "jobs.json");
+      try {
+        const raw = fs.readFileSync(jobsPath, "utf-8");
+        data = JSON.parse(raw);
+      } catch (fileErr) {
+        console.error("Failed to read jobs.json:", fileErr);
+      }
+    }
+
+    if (!data || !data.jobs) {
+      return NextResponse.json([]);
+    }
+
     const jobs = (data.jobs || []).map((job: Record<string, unknown>) => ({
       id: job.id,
       agentId: job.agentId || "main",
@@ -49,9 +70,9 @@ export async function GET() {
 
     return NextResponse.json(jobs);
   } catch (error) {
-    console.error("Error fetching cron jobs from gateway:", error);
+    console.error("Error fetching cron jobs:", error);
     return NextResponse.json(
-      { error: "Failed to fetch cron jobs from OpenClaw gateway" },
+      { error: "Failed to fetch cron jobs" },
       { status: 500 }
     );
   }

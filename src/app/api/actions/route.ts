@@ -82,7 +82,7 @@ async function runAction(action: string): Promise<ActionResult> {
       case 'heartbeat': {
         // Check all critical services
         const services = ['mission-control'];
-        const pm2services = ['classvault', 'content-vault', 'brain'];
+        const pm2services: string[] = [];
         const results: string[] = [];
 
         for (const svc of services) {
@@ -105,10 +105,10 @@ async function runAction(action: string): Promise<ActionResult> {
 
         // Ping the main site
         try {
-          const { stdout: ping } = await execAsync('curl -s -o /dev/null -w "%{http_code}" --max-time 5 https://tenacitas.cazaustre.dev');
-          results.push(`\n🌐 tenacitas.cazaustre.dev: HTTP ${ping.trim()}`);
+          const { stdout: ping } = await execAsync('curl -s -o /dev/null -w "%{http_code}" --max-time 5 http://localhost:3000');
+          results.push(`\n🌐 Mission Control: HTTP ${ping.trim()}`);
         } catch {
-          results.push('\n🌐 tenacitas.cazaustre.dev: unreachable');
+          results.push('\n🌐 Mission Control: unreachable');
         }
 
         output = results.join('\n');

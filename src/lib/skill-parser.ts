@@ -236,9 +236,12 @@ function loadConfiguredSkills(): ConfiguredSkill[] {
 export function scanAllSkills(): SkillInfo[] {
   const skills: SkillInfo[] = [];
   
+  // Try config file first, then fallback to directory scan
+  let configLoaded = false;
   try {
     const content = fs.readFileSync(CONFIG_PATH, 'utf-8');
     const config: SkillsConfig = JSON.parse(content);
+    configLoaded = true;
     
     const systemPath = config.systemSkillsPath || DEFAULT_SYSTEM_PATH;
     const workspacePath = config.workspaceSkillsPath || DEFAULT_WORKSPACE_PATH;
@@ -272,18 +275,48 @@ export function scanAllSkills(): SkillInfo[] {
         skills.push(skill);
       }
     }
-    
-    // Sort by source (workspace first), then name
-    skills.sort((a, b) => {
-      if (a.source !== b.source) {
-        return a.source === 'workspace' ? -1 : 1;
-      }
-      return a.name.localeCompare(b.name);
-    });
-    
-  } catch (error) {
-    console.error('Error scanning skills:', error);
+  } catch {
+    // Config file not found — fall back to scanning workspace skills directories
   }
+
+  if (!configLoaded) {
+    const openclawDir = process.env.OPENCLAW_DIR || '/root/.openclaw';
+    const agentSkillMap = buildAgentSkillMap();
+
+    // Scan all workspace-*/skills/ directories
+    try {
+      const dirs = fs.readdirSync(openclawDir, { withFileTypes: true });
+      const scannedSkills = new Set<string>();
+
+      for (const d of dirs) {
+        if (!d.isDirectory() || !d.name.startsWith('workspace')) continue;
+        const skillsDir = path.join(openclawDir, d.name, 'skills');
+        if (!fs.existsSync(skillsDir)) continue;
+
+        const skillDirs = fs.readdirSync(skillsDir, { withFileTypes: true });
+        for (const sd of skillDirs) {
+          if (!sd.isDirectory() || scannedSkills.has(sd.name)) continue;
+          const skillPath = path.join(skillsDir, sd.name);
+          const agents = agentSkillMap.get(sd.name) || [];
+          const skill = parseSkill(skillPath, sd.name, agents);
+          if (skill) {
+            skills.push(skill);
+            scannedSkills.add(sd.name);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error scanning workspace skills:', error);
+    }
+  }
+
+  // Sort by source (workspace first), then name
+  skills.sort((a, b) => {
+    if (a.source !== b.source) {
+      return a.source === 'workspace' ? -1 : 1;
+    }
+    return a.name.localeCompare(b.name);
+  });
   
   return skills;
 }

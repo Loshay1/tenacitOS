@@ -70,8 +70,14 @@ export async function GET() {
         config.channels?.telegram?.accounts?.[agent.id];
       const botToken = telegramAccount?.botToken;
 
+      // Translate container paths to host paths
+      const openclawDir = process.env.OPENCLAW_DIR || '/root/.openclaw';
+      const hostWorkspace = agent.workspace
+        .replace('/home/node/.openclaw', openclawDir)
+        .replace('/home/clawdbot/.openclaw', openclawDir);
+
       // Check if agent has recent activity
-      const memoryPath = join(agent.workspace, "memory");
+      const memoryPath = join(hostWorkspace, "memory");
       let lastActivity = undefined;
       let status: "online" | "offline" = "offline";
 
@@ -122,7 +128,7 @@ export async function GET() {
         color: agentInfo.color,
         model:
           agent.model?.primary || config.agents.defaults.model.primary,
-        workspace: agent.workspace,
+        workspace: hostWorkspace,
         dmPolicy:
           telegramAccount?.dmPolicy ||
           config.channels?.telegram?.dmPolicy ||

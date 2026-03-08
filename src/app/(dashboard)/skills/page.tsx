@@ -155,7 +155,7 @@ export default function SkillsPage() {
           />
           <input
             type="text"
-            placeholder="Buscar skills..."
+            placeholder="Search skills..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{

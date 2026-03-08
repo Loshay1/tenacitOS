@@ -65,21 +65,21 @@ export async function GET() {
   checks.push({ ...gateway, name: 'OpenClaw Gateway' });
 
   // PM2 services
-  const pm2Services = ['classvault', 'content-vault', 'brain'];
+  const pm2Services: string[] = [];
   const pm2Checks = await Promise.all(pm2Services.map(checkPm2Service));
   checks.push(...pm2Checks);
 
   // External URLs
   const urlChecks = await Promise.all([
-    checkUrl('https://tenacitas.cazaustre.dev'),
+    checkUrl('http://localhost:3000'),
     checkUrl('https://api.anthropic.com', 3000),
   ]);
 
   checks.push({
-    name: 'tenacitas.cazaustre.dev',
+    name: 'Mission Control (localhost)',
     status: urlChecks[0].status,
     latency: urlChecks[0].latency,
-    url: 'https://tenacitas.cazaustre.dev',
+    url: 'http://localhost:3000',
   });
 
   checks.push({

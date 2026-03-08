@@ -77,7 +77,7 @@ export default function DashboardPage() {
           🦞 Mission Control
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
-          Overview of Tenacitas agent activity
+          Overview of {process.env.NEXT_PUBLIC_AGENT_NAME || 'Bashir'} agent activity
         </p>
       </div>
 

@@ -13,7 +13,7 @@ interface CronJobModalProps {
 }
 
 const TIMEZONES = [
-  "UTC", "Europe/Madrid", "America/New_York", "America/Chicago",
+  "UTC", "America/New_York", "America/Chicago", "America/Denver",
   "America/Denver", "America/Los_Angeles", "Europe/London",
   "Europe/Paris", "Europe/Berlin", "Asia/Tokyo", "Asia/Shanghai",
   "Asia/Singapore", "Australia/Sydney",
@@ -70,7 +70,7 @@ export function CronJobModal({ isOpen, onClose, onSave, editingJob }: CronJobMod
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [schedule, setSchedule] = useState("0 9 * * *");
-  const [timezone, setTimezone] = useState("Europe/Madrid");
+  const [timezone, setTimezone] = useState("America/Chicago");
   const [frequencyMode, setFrequencyMode] = useState<FrequencyMode>("daily");
   const [showPresets, setShowPresets] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -96,7 +96,7 @@ export function CronJobModal({ isOpen, onClose, onSave, editingJob }: CronJobMod
         setName("");
         setDescription("");
         setSchedule("0 9 * * *");
-        setTimezone("Europe/Madrid");
+        setTimezone("America/Chicago");
         setFrequencyMode("daily");
       }
       setErrors({});

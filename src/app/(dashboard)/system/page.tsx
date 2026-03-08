@@ -103,13 +103,13 @@ export default function SystemMonitorPage() {
 
     try {
       if (action === "logs") {
-        setLogsModal({ name: svc.name, backend: svc.backend || "pm2", content: "", loading: true });
+        setLogsModal({ name: svc.name, backend: svc.backend || "systemd", content: "", loading: true });
       }
 
       const res = await fetch("/api/system/services", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: svc.name, backend: svc.backend || "pm2", action }),
+        body: JSON.stringify({ name: svc.name, backend: svc.backend || "systemd", action }),
       });
 
       const data = await res.json();
@@ -117,7 +117,7 @@ export default function SystemMonitorPage() {
       if (!res.ok) throw new Error(data.error || "Action failed");
 
       if (action === "logs") {
-        setLogsModal({ name: svc.name, backend: svc.backend || "pm2", content: data.output, loading: false });
+        setLogsModal({ name: svc.name, backend: svc.backend || "systemd", content: data.output, loading: false });
       } else {
         showToast(`✅ ${svc.name}: ${action} successful`);
         // Refresh data after action
@@ -129,7 +129,7 @@ export default function SystemMonitorPage() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Action failed";
       if (action === "logs") {
-        setLogsModal({ name: svc.name, backend: svc.backend || "pm2", content: `Error: ${msg}`, loading: false });
+        setLogsModal({ name: svc.name, backend: svc.backend || "systemd", content: `Error: ${msg}`, loading: false });
       } else {
         showToast(`❌ ${svc.name}: ${msg}`, "error");
       }
@@ -353,7 +353,7 @@ export default function SystemMonitorPage() {
                 </thead>
                 <tbody>
                   {systemData.systemd.map((svc) => {
-                    const isActionable = svc.backend === "pm2" || svc.backend === "systemd";
+                    const isActionable = svc.backend === "pm2" || svc.backend === "systemd" || svc.backend === "docker";
                     const restartKey = `${svc.name}-restart`;
                     const stopKey = `${svc.name}-stop`;
                     const logsKey = `${svc.name}-logs`;
