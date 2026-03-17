@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   RefreshCw,
   Trash2,
@@ -22,10 +23,10 @@ interface ActionButton {
   icon: React.ComponentType<{ className?: string }>;
   color: "emerald" | "blue" | "yellow" | "red";
   action: () => Promise<void> | void;
-  placeholder?: boolean;
 }
 
 export function QuickActions({ onActionComplete }: QuickActionsProps) {
+  const router = useRouter();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [notification, setNotification] = useState<{
@@ -35,12 +36,30 @@ export function QuickActions({ onActionComplete }: QuickActionsProps) {
 
   const showNotification = (type: "success" | "error", message: string) => {
     setNotification({ type, message });
-    setTimeout(() => setNotification(null), 3000);
+    setTimeout(() => setNotification(null), 5000);
   };
 
   const handleRestartGateway = async () => {
-    // Placeholder - would call openclaw gateway restart
-    showNotification("success", "Gateway restart command sent (placeholder)");
+    setLoadingAction("restart");
+    try {
+      const res = await fetch("/api/actions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "restart-gateway" }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.status === "error") {
+        throw new Error(data.output || "Failed to restart gateway");
+      }
+
+      showNotification("success", "Gateway restart initiated. It may take a few seconds to come back up.");
+      onActionComplete?.();
+    } catch (err) {
+      showNotification("error", err instanceof Error ? err.message : "Failed to restart gateway");
+    } finally {
+      setLoadingAction(null);
+    }
   };
 
   const handleClearActivityLog = async () => {
@@ -63,9 +82,8 @@ export function QuickActions({ onActionComplete }: QuickActionsProps) {
     }
   };
 
-  const handleViewLogs = async () => {
-    // Placeholder - would open gateway logs
-    showNotification("success", "Opening gateway logs... (placeholder)");
+  const handleViewLogs = () => {
+    router.push("/logs");
   };
 
   const actions: ActionButton[] = [
@@ -75,7 +93,6 @@ export function QuickActions({ onActionComplete }: QuickActionsProps) {
       icon: RefreshCw,
       color: "blue",
       action: handleRestartGateway,
-      placeholder: true,
     },
     {
       id: "clear_log",
@@ -90,7 +107,6 @@ export function QuickActions({ onActionComplete }: QuickActionsProps) {
       icon: FileText,
       color: "emerald",
       action: handleViewLogs,
-      placeholder: true,
     },
     {
       id: "change_password",
@@ -118,7 +134,6 @@ export function QuickActions({ onActionComplete }: QuickActionsProps) {
           Quick Actions
         </h2>
 
-        {/* Notification */}
         {notification && (
           <div
             className={`flex items-center gap-2 p-3 rounded-lg mb-4 ${
@@ -156,9 +171,6 @@ export function QuickActions({ onActionComplete }: QuickActionsProps) {
                   <Icon className="w-4 h-4" />
                 )}
                 <span className="font-medium">{action.label}</span>
-                {action.placeholder && (
-                  <span className="text-xs opacity-50">(placeholder)</span>
-                )}
               </button>
             );
           })}
